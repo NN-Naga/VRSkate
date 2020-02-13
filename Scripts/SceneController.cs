@@ -36,9 +36,9 @@ public class SceneController : MonoBehaviour
         }
         if (SceneManager.GetActiveScene().name == "VRSkateTitle")
         {
-            cs_PathControl.RapInfo = 0;
-            cs_PathControl.TimeInfo = 0f;
-            cs_PathControl.DistanceInfo = 0f;
+            PathControl.RapInfo = 0;
+            PathControl.TimeInfo = 0f;
+            PathControl.DistanceInfo = 0f;
         }
     }
 
@@ -46,12 +46,12 @@ public class SceneController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        int Rap = cs_PathControl.RapInfo;
+        int Rap = PathControl.RapInfo;
         if(SceneManager.GetActiveScene().name == "VRSkateMain" && Rap >= 3)
         {
-            float time = cs_PathControl.TimeInfo;
+            float time = PathControl.TimeInfo;
             playerDataAsset.time = time;
-            float distance = cs_PathControl.DistanceInfo;
+            float distance = PathControl.DistanceInfo;
             playerDataAsset.distance = distance;
             ChangeResultScene();
         }
