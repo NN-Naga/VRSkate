@@ -73,13 +73,13 @@ public class PathControl : MonoBehaviour
         }
         return (true);
     }
-    float addSpeed = 0;
+    public static float addSpeed = 0;
     private static int rap = 0;
 
     void Drive_Increase(bool drive)
     {
         if(drive == true && addSpeed <= 0.001f) //ボタン降下で加速
-            addSpeed += 0.00001f;
+            addSpeed += 0.000005f;
         //Debug.Log ("Drive_Increase" + addSpeed);
         PositionPercent += addSpeed;
         addSpeed -= 0.000002f; //摩擦力
@@ -92,19 +92,28 @@ public class PathControl : MonoBehaviour
     void Drive_Decrease()
     {
         //Debug.Log ("Drive_Decrease");
-        PositionPercent -= addSpeed;
+        PositionPercent += addSpeed;
+        addSpeed += 0.000002f;
         if (PositionPercent < 0.0f) PositionPercent = 1.0f;
     }
 
     public GameObject trackedObject1;
     public GameObject trackedObject2;
     public GameObject baseObject;
-    private Vector3 offset1;
-    private Vector3 offset2;
-    private Vector3 diff1;
-    private Vector3 diff2;
 
+    private Vector3 preoffset1;
+    private Vector3 preoffset2;
+    protected Vector3 diff1;
+    protected Vector3 diff2;
+    private Vector3 bVec;
+    private Vector3 bOff;
 
+    public AudioClip slidingSound1;
+    public AudioClip slidingSound2;
+    AudioSource audioSource;
+
+    private bool sounding1 = false;
+    private bool sounding2 = false;
 
     void Watch_UI_Input()
     {
@@ -135,22 +144,48 @@ public class PathControl : MonoBehaviour
   //End: Control by Accel Sensor
 #endif
         */
-        
-        diff1 = trackedObject1.transform.position - baseObject.transform.position - offset1;
-        diff2 = trackedObject2.transform.position - baseObject.transform.position - offset2;
+
+        Vector3 offset1 = trackedObject1.transform.position - baseObject.transform.position;
+        Vector3 offset2 = trackedObject2.transform.position - baseObject.transform.position;
+        diff1 = offset1 - preoffset1;
+        diff2 = offset2 - preoffset2;
+        bVec = baseObject.transform.position - bOff;
 
         //Debug.Log("position = " + offset + "   vector = " + diff.magnitude);
-        if (diff1.magnitude > 0.01f || diff2.magnitude > 0.01f) //ベクトルの長さが0.1fより大きい場合に加速する処理を入れる
+        if (/*Mathf.Abs(bVec.z) > 0.005f &&*/ diff1.magnitude > 0.01f) //右足ベクトルの長さが0.01fより大きい場合に加速する処理を入れる
         {
             drive_Fwd = true;  //プレイヤーを加速させる
+            if (!sounding1)
+            {
+                audioSource.PlayOneShot(slidingSound1);
+                sounding1 = true;
+            }
         }
-        offset1 = trackedObject1.transform.position - baseObject.transform.position;
-        offset2 = trackedObject2.transform.position - baseObject.transform.position;
+        else if (diff1.magnitude < 0.003f)
+        {
+            sounding1 = false;
+        }
 
+        if (diff2.magnitude > 0.01f) //左足ベクトルの長さが0.01fより大きい場合に加速する処理を入れる
+        {
+            drive_Fwd = true;  //プレイヤーを加速させる
+            if (!sounding2)
+            {
+                audioSource.PlayOneShot(slidingSound2);
+                sounding2 = true;
+            }
+        }
+        else if (diff2.magnitude < 0.003f)
+        {
+            sounding2 = false;
+        }
+        preoffset1 = offset1;
+        preoffset2 = offset2;
+        bOff = baseObject.transform.position;
 
 
         if (drive_Fwd || addSpeed > 0.0001f) Drive_Increase(drive_Fwd); //ボタン降下または加速度が0になるまで呼び出し
-        if (drive_Bwd) Drive_Decrease();
+        if (addSpeed < -0.0001f) Drive_Decrease();
         //if (drive_Fwd | drive_Bwd) Debug.Log("Position is " + PositionPercent * 100.0f + "%"); //移動したなら表示 
     }
 
@@ -158,8 +193,10 @@ public class PathControl : MonoBehaviour
     {
         //DontDestroyOnLoad(this);
         SetPathPosition_from_ITweenPath(PathName);
-        offset1 = trackedObject1.transform.position - baseObject.transform.position; //相対位置を取るため、トラッカーの位置とプレイヤーの位置の差分を取る。
-        offset2 = trackedObject2.transform.position - baseObject.transform.position;
+        preoffset1 = trackedObject1.transform.position - baseObject.transform.position; //相対位置を取るため、トラッカーの位置とプレイヤーの位置の差分を取る。
+        preoffset2 = trackedObject2.transform.position - baseObject.transform.position;
+        bOff = baseObject.transform.position;
+        audioSource = GetComponent<AudioSource>();
     }
 
     public Text Info;
@@ -193,9 +230,12 @@ public class PathControl : MonoBehaviour
         campos.y = playerDataAsset.height;
         transform.position = campos;
         distance += diff1.magnitude + diff2.magnitude;
-        Info.text = "Vector = " + (diff1.magnitude + diff2.magnitude).ToString("f3")
+        Info.text = "Vector-Left = " + diff1.magnitude.ToString("f3")
+                    + "\nVector-Right = " + diff2.magnitude.ToString("f3")
+                    + "\nBeseVector = " + bVec.z.ToString("f4")
                     + "\nRap : " + rap
                     + "\nTime : " + time
-                    + "\nDistance : " + distance.ToString("f2") + "m";
+                    /*+ "\nDistance : " + distance.ToString("f2") + "m"*/;
+        //Debug.Log("Drive_Increase" + addSpeed);
     }
 }
