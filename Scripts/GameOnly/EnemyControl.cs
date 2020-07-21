@@ -71,7 +71,7 @@ public class EnemyControl : MonoBehaviour
         moveParam.direction = -moveParam.direction;
     }
 
-    /** 移動パラメタ */
+    /** 移動パラメータ */
     [System.Serializable]
     public class EnemyMove
     {
@@ -89,7 +89,7 @@ public class EnemyControl : MonoBehaviour
         }
     }
 
-    /** 回転パラメタ */
+    /** 回転パラメータ */
     [System.Serializable]
     public class EnemyRotate
     {

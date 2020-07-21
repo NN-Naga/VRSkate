@@ -40,10 +40,22 @@ public class PlayerControl : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.tag == "Obstacle")
+        if (collision.gameObject.tag == "Obstacle")
         {
             PathControl.addSpeed = -0.0005f;
             audioSource.PlayOneShot(hitSound);
         }
+    }
+    private void OnTriggerEnter(Collider collider)
+    {
+        if (collider.gameObject.tag == "Bomb")
+        {
+            StartCoroutine(KnockBack());
+        }
+    }
+    IEnumerator KnockBack()
+    {
+        yield return null;
+        PathControl.addSpeed = -0.001f;
     }
 }
