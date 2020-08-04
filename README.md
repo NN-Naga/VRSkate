@@ -17,7 +17,8 @@ VRスケート開発用のリポジトリとなります。
 
 ・PathControl<br/><br/>
 前進動作用スクリプトです。<br/>
-「ITween」プラグイン（https://assetstore.unity.com/packages/tools/animation/itween-84?locale=ja-JP）を使用しており、プラグイン内のスクリプトの「TweenPath」と併用して使用します。
+「ITween」プラグイン（https://assetstore.unity.com/packages/tools/animation/itween-84?locale=ja-JP）
+を使用しており、プラグイン内のスクリプトの「TweenPath」と併用して使用します。<br/>
 ITweenPathでパス（経路）を設定し、本スクリプトで経路移動の制御を行います。<br/>
 本アプリでは、白ポールフラグの位置がパスの開始および終了地点となっており、そこを通過することによりラップ数がカウントされ、ステージが更新されます。
 
